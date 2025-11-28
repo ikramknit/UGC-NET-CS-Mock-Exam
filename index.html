@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UGC NET CS Mock Exam</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Polyfill for process to prevent crashes in libraries that expect it
+      window.process = {
+        env: {
+          NODE_ENV: 'production'
+        }
+      };
+    </script>
     <style>
       /* Custom scrollbar to match exam interfaces usually being desktop-centric but scrollable */
       ::-webkit-scrollbar {
@@ -24,6 +32,18 @@
       .no-select {
         user-select: none;
         -webkit-user-select: none;
+      }
+      /* NTA Palette Shapes */
+      .clip-path-polygon {
+        clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%);
+      }
+      .clip-path-custom {
+         /* Answered - often green rounded or specific shape */
+         border-radius: 4px 4px 50% 50%;
+      }
+      .clip-path-custom-2 {
+         /* Not Answered - often red with specific bottom cut */
+         clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
       }
     </style>
   <script type="importmap">

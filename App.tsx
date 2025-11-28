@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Component, ErrorInfo, ReactNode } from 'react';
 import { generateExamQuestions } from './services/geminiService';
 import WelcomeScreen from './components/WelcomeScreen';
 import ExamHeader from './components/ExamHeader';
@@ -8,10 +8,59 @@ import ResultScreen from './components/ResultScreen';
 import { ExamState, Question, QuestionStatus, UserResponse } from './types';
 import { Loader2 } from 'lucide-react';
 
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+// Error Boundary Component
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 p-6 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+          <p className="text-gray-700 mb-4">The application crashed. Please check the console for details.</p>
+          <div className="bg-white p-4 rounded border border-red-200 text-left overflow-auto max-w-2xl w-full">
+             <code className="text-red-800 text-sm font-mono whitespace-pre-wrap">
+               {this.state.error?.toString()}
+             </code>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Reload Application
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const TOTAL_QUESTIONS = 20;
 const EXAM_DURATION_SECONDS = 20 * 60; // 20 minutes
 
-const App: React.FC = () => {
+const ExamApp: React.FC = () => {
   const [examState, setExamState] = useState<ExamState>({
     questions: [],
     responses: {},
@@ -333,6 +382,15 @@ const App: React.FC = () => {
         />
       </div>
     </div>
+  );
+};
+
+// Wrap App with Error Boundary
+const App: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <ExamApp />
+    </ErrorBoundary>
   );
 };
 
